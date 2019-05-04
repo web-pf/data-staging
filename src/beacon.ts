@@ -1,12 +1,11 @@
 import koaRouter from 'koa-router'
 import { saveBeacon } from './utils/beacon-utils'
-import { PerformanceNodeTiming } from 'perf_hooks'
 
 export const beacon = new koaRouter()
 
 export interface IBeaconData {
   appId: string
-  beaconName: string
+  name: string
   record: string | object
 }
 
@@ -33,7 +32,7 @@ beacon.post('/performance_timing', async ctx => {
 
   saveBeacon({
     appId,
-    beaconName: 'nav_timing',
+    name: 'nav_timing',
     record: {
       dnsLookUpTiming,
       tcpTiming,

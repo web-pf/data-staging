@@ -1,9 +1,9 @@
 import { IBeaconData } from '@/beacon'
-import { setRecord, getRecord, incrRecord } from '../db'
-
+import { db } from '../db'
+export const dbm = new db()
 export const saveBeacon = async (beaconData: IBeaconData) => {
   const { appId } = beaconData
-  const beaconIndex = await incrRecord(`${appId}:counter`)
-  await setRecord(`${appId}:${beaconIndex}`, JSON.stringify(beaconData))
+  const beaconIndex = await dbm.incrRecord(`counter:${appId}`)
+  await dbm.setRecord(`beacon:${appId}:${beaconIndex}`, JSON.stringify(beaconData))
   return beaconIndex
 }

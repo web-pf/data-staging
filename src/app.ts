@@ -8,6 +8,12 @@ import fs from 'fs'
 // sub routers
 import { beacon } from './beacon'
 
+import { dbm } from './utils/beacon-utils'
+
+setInterval(() => {
+  dbm.flush()
+}, 5000)
+
 const app = new koa()
 const router = new koaRouter()
 
