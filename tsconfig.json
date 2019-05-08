@@ -6,15 +6,20 @@
     "sourceMap": true,
     "target": "es5",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",
+      ],
+      "@config/*": [
+        "./conf/*"
       ]
     },
   },
   "include": [
     "./src/**/*",
+    "./conf/**/*",
   ],
   "exclude": [
     "node_modules",

@@ -7,12 +7,12 @@ import fs from 'fs'
 
 // sub routers
 import { beacon } from './beacon'
-
-import { dbm } from './utils/beacon-utils'
+import { dbm } from '@/utils/beacon-utils'
+import { hostname, port, uploadInterval } from '@config/serivce.json'
 
 setInterval(() => {
   dbm.flush()
-}, 5000)
+}, uploadInterval)
 
 const app = new koa()
 const router = new koaRouter()
@@ -26,7 +26,7 @@ app.use(
   })
 )
 app.use((ctx, next) => {
-  const {method, host} = ctx.request
+  const { method, host } = ctx.request
   console.log(`${method}, ${host}`)
   next()
 })
@@ -39,6 +39,6 @@ const credentials = {
   cert: certificate,
 }
 const httpsServer = https.createServer(credentials, app.callback())
-httpsServer.listen(4431, 'webpf.net', () => {
+httpsServer.listen(port, hostname, () => {
   console.log(`data staging service is running on: https://localhost:4431`)
 })

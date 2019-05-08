@@ -1,28 +1,22 @@
-import { createClient, RedisClient } from 'redis'
-import { promisify } from 'util'
+import Redis, { Redis as IRedis } from 'ioredis'
+import axios from 'axios'
+
+import { serviceUrl } from '@config/serivce.json'
 
 type TRedisDbIndex = 0 | 1 | 2
 
 export class db {
   private currentDbIndex: TRedisDbIndex
-  private client: RedisClient
-  private flushClient: RedisClient
+  private client: IRedis
+  private flushClient: IRedis
 
-  public getRecord: (arg1: string) => Promise<{}>
-  public setRecord: (arg1: string, arg2: string) => Promise<{}>
-  public getAllRecords: (arg1: string) => Promise<string[]>
-  public incrRecord: (arg1: string) => Promise<number>
+  private stashedData: object[] = []
 
   constructor() {
-    this.currentDbIndex = 1
+    this.currentDbIndex = 0
 
-    this.client = createClient()
-    this.flushClient = createClient()
-
-    this.getAllRecords = promisify(this.client.keys).bind(this.client)
-    this.getRecord = promisify(this.client.get).bind(this.client)
-    this.setRecord = promisify(this.client.set).bind(this.client)
-    this.incrRecord = promisify(this.client.incr).bind(this.client)
+    this.client = new Redis()
+    this.flushClient = new Redis()
   }
 
   getClient() {
@@ -40,26 +34,26 @@ export class db {
       this.currentDbIndex += 1
     }
 
-    console.log(this.currentDbIndex)
-
-    await promisify(this.client.select).bind(this.client)(this.currentDbIndex)
+    await this.client.select(this.currentDbIndex)
   }
 
   async flush() {
-    const allRecords = await this.getAllRecords('*')
-    if (allRecords[1] && allRecords[1].length) {
+    const currentDbHasData = await this.client.dbsize()
+    if (currentDbHasData) {
       const flushRequiredDbIndex = this.currentDbIndex
       await this.switchDb()
-      await promisify(this.flushClient.select).bind(this.flushClient)(flushRequiredDbIndex)
-      this.flushClient.scan('0', 'MATCH', 'beacon:*', (err, result) => {
-        if (!err) {
-          this.flushClient.mget(result[1], (err, result) => {
-            console.log(result)
-          })
-        }
+      await this.flushClient.select(flushRequiredDbIndex)
+      const stashRequiredRecordKeys = await this.flushClient.scan(0, 'MATCH', 'beacon:*')
+      const stashRequiredRecordKeyRecords = await this.flushClient.mget(
+        stashRequiredRecordKeys[1] as any
+      )
+      axios({
+        method: 'put',
+        url: serviceUrl,
+        data: stashRequiredRecordKeyRecords,
+      }).then(() => {
+        this.flushClient.flushall()
       })
-    } else {
-
     }
   }
 }
