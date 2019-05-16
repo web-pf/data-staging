@@ -3,21 +3,28 @@ import axios from 'axios'
 
 import { serviceUrl } from '@config/serivce.json'
 
-type TRedisDbIndex = 0 | 1 | 2
+type TRedisDbIndex = 10 | 11 | 12
 
 export class db {
   private currentDbIndex: TRedisDbIndex
   private client: IRedis
   private flushClient: IRedis
+  private ipClient: IRedis
 
   private stashedData: object[] = []
 
   constructor() {
-    this.currentDbIndex = 0
+    this.currentDbIndex = 10
 
     this.client = new Redis()
     this.flushClient = new Redis()
+    this.ipClient = new Redis()
+
+    this.ipClient.select(0)
   }
+
+  getIp(ip: string) {}
+  setIp(ip: string, loc: string, isp: string) {}
 
   getClient() {
     return this.client
@@ -28,8 +35,8 @@ export class db {
   }
 
   async switchDb() {
-    if (this.currentDbIndex === 2) {
-      this.currentDbIndex = 0
+    if (this.currentDbIndex === 12) {
+      this.currentDbIndex = 10
     } else {
       this.currentDbIndex += 1
     }
@@ -51,9 +58,13 @@ export class db {
         method: 'put',
         url: serviceUrl,
         data: stashRequiredRecordKeyRecords,
-      }).then(() => {
-        this.flushClient.flushall()
       })
+        .then(() => {
+          this.flushClient.flushall()
+        })
+        .catch(() => {
+          console.log('error')
+        })
     }
   }
 }

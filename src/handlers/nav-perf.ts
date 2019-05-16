@@ -1,22 +1,22 @@
 export const navPerfTimingHandler = (record: string) => {
-  const performanceTimingData = JSON.parse(record) as PerformanceTiming
+  const performanceTimingData = JSON.parse(record) as PerformanceNavigationTiming
   const {
     fetchStart,
     domainLookupEnd,
     domainLookupStart,
     connectStart,
     connectEnd,
-    requestStart,
+    responseStart,
     responseEnd,
     domComplete,
     domInteractive,
   } = performanceTimingData
 
   return {
-    dnsLookUpTiming: domainLookupEnd - domainLookupStart,
-    tcpTiming: connectEnd - connectStart,
-    requestHandlingTiming: responseEnd - requestStart,
-    domProcessingTiming: domComplete - domInteractive,
-    totalRenderingTiming: domComplete - fetchStart,
+    dns: domainLookupEnd - domainLookupStart,
+    tcp: connectEnd - connectStart,
+    response: responseEnd - responseStart,
+    dom: domInteractive - responseEnd,
+    total: domComplete - fetchStart,
   }
 }
