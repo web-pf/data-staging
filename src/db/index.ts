@@ -51,20 +51,22 @@ export class db {
       await this.switchDb()
       await this.flushClient.select(flushRequiredDbIndex)
       const stashRequiredRecordKeys = await this.flushClient.scan(0, 'MATCH', 'beacon:*')
-      const stashRequiredRecordKeyRecords = await this.flushClient.mget(
-        stashRequiredRecordKeys[1] as any
-      )
-      axios({
-        method: 'put',
-        url: serviceUrl,
-        data: stashRequiredRecordKeyRecords,
-      })
-        .then(() => {
-          this.flushClient.flushall()
+      if (stashRequiredRecordKeys[1]) {
+        const stashRequiredRecordKeyRecords = await this.flushClient.mget(
+          stashRequiredRecordKeys[1] as any
+        )
+        axios({
+          method: 'put',
+          url: serviceUrl,
+          data: stashRequiredRecordKeyRecords,
         })
-        .catch(() => {
-          console.log('error')
-        })
+          .then(() => {
+            this.flushClient.flushall()
+          })
+          .catch(() => {
+            console.log('error')
+          })
+      }
     }
   }
 }
