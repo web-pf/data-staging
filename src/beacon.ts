@@ -39,3 +39,7 @@ beacon.post('/', async ctx => {
 
   ctx.body = { name }
 })
+
+beacon.get('/echo', async ctx => {
+  ctx.body = { msg: "echo" }
+})

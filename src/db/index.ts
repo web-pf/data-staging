@@ -16,9 +16,9 @@ export class db {
   constructor() {
     this.currentDbIndex = 10
 
-    this.client = new Redis()
-    this.flushClient = new Redis()
-    this.ipClient = new Redis()
+    this.client = new Redis({ host: process.env.REDIS_URL })
+    this.flushClient = new Redis({ host: process.env.REDIS_URL })
+    this.ipClient = new Redis({ host: process.env.REDIS_URL })
 
     this.ipClient.select(0)
   }
@@ -51,7 +51,7 @@ export class db {
       await this.switchDb()
       await this.flushClient.select(flushRequiredDbIndex)
       const stashRequiredRecordKeys = await this.flushClient.scan(0, 'MATCH', 'beacon:*')
-      if (stashRequiredRecordKeys[1]) {
+      if (stashRequiredRecordKeys[1].length) {
         const stashRequiredRecordKeyRecords = await this.flushClient.mget(
           stashRequiredRecordKeys[1] as any
         )
@@ -63,8 +63,8 @@ export class db {
           .then(() => {
             this.flushClient.flushall()
           })
-          .catch(() => {
-            console.log('error')
+          .catch(reason => {
+            console.log(reason.message)
           })
       }
     }
