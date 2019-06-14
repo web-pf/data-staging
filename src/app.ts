@@ -31,15 +31,15 @@ app.use((ctx, next) => {
   next()
 })
 app.use(router.routes()).use(router.allowedMethods())
-app.listen(port)
+// app.listen(port)
 
-// const privateKey = fs.readFileSync(path.join(__dirname, '../ssl/ssl.key'), 'utf8')
-// const certificate = fs.readFileSync(path.join(__dirname, '../ssl/ssl.crt'), 'utf8')
-// const credentials = {
-//   key: privateKey,
-//   cert: certificate,
-// }
-// const httpsServer = https.createServer(credentials, app.callback())
-// httpsServer.listen(port, hostname, () => {
-//   console.log(`data staging service is running on ${hostname}:${port}`)
-// })
+const privateKey = fs.readFileSync(path.join(__dirname, '../ssl/ssl.key'), 'utf8')
+const certificate = fs.readFileSync(path.join(__dirname, '../ssl/ssl.crt'), 'utf8')
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+}
+const httpsServer = https.createServer(credentials, app.callback())
+httpsServer.listen(port, hostname, () => {
+  console.log(`data staging service is running on ${hostname}:${port}`)
+})

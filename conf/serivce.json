@@ -1,6 +1,6 @@
 {
   "hostname": "webpf.net",
   "port": 9000,
-  "serviceUrl": "http://perf-service:5000/api/v1/beacon",
+  "serviceUrl": "http://localhost:5000/api/v1/beacon",
   "uploadInterval": 5000
 }
